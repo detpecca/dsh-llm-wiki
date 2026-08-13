@@ -4,7 +4,7 @@ DeepSeek Harness 插件：让 agent 直接管理 **LLM-Wiki** 个人知识库（
 
 `@detpecca/dsh-llm-wiki` 是一个**薄适配层**——不重复实现任何检索/编译逻辑：
 
-- 每个工具通过 DSH 的 `subprocess` 服务调用 [DSH-Wiki](https://github.com/detpecca/DSH-Wiki)（LLM-Wiki 的 Python 包，带 `--json` 输出）的 CLI；
+- 每个工具通过 DSH 的 `subprocess` 服务调用 [DSH-Wiki](https://github.com/detpecca/DSH-Wiki)（LLM-Wiki 的 Python 引擎，带 `--json` 输出）的 CLI；
 - Wiki 自己的**结构化信号检索引擎**（页名/别名/标签/摘要加权打分）和**论文算法 1 编译流程**保持唯一权威；
 - 插件本体**零运行时依赖**（纯 ESM，无构建步骤）。
 
@@ -19,43 +19,45 @@ DeepSeek Harness 插件：让 agent 直接管理 **LLM-Wiki** 个人知识库（
 | `wiki_errorbook` | 查看 Error Book（自我纠错记录） | 否 |
 | `wiki_ingest` | 把源文本编译入库（算法 1 全流程） | 是（编译本质要调 LLM） |
 
-## 前置条件
+## 🚀 快速开始（给使用者）
 
-1. 安装 Python 包 **DSH-Wiki**（带 `--json` 接口的分支，`pyyaml` 是唯一运行时依赖）：
+**总共两条安装命令，不需要克隆任何仓库。**
 
-   ```bash
-   pip install -e D:/path/to/DSH-Wiki
-   # 或 python -m venv .venv && .venv/Scripts/pip install pyyaml
-   ```
+### 1. 安装 Python 引擎（DSH-Wiki）
 
-2. 准备一个已编译的 wiki 目录（`index.md` + 分类页面）。没有的话先用 Wiki 自己的 CLI 编译：
-
-   ```bash
-   python -m llm_wiki ingest my_notes.txt --wiki ./wiki
-   ```
-
-## 安装与挂载
-
-把包加进你的 DSH 部署（如 `$DSH_HOME/profiles/<name>/package.json` 依赖），然后在
-`cordis.yml`（或用户 patch 层 `cordis.patch.yml`）加一行：
-
-```yaml
-- insert:
-    - id: llm-wiki
-      name: '@detpecca/dsh-llm-wiki'
-      config:
-        wikiPath: D:/path/to/wiki        # 必填：wiki 根目录
-        pythonPath: python               # 可选：python 可执行文件（默认 python）
-        cwd: D:/path/to/DSH-Wiki         # 可选：子进程工作目录（llm_wiki 包需可导入）
+```bash
+pip install git+https://github.com/detpecca/DSH-Wiki.git
+# 唯一运行时依赖是 pyyaml
 ```
 
-挂载后，`wiki_search` / `wiki_read` 等工具即可被 agent 调用。遍历策略（搜索→阅读→跟
-链接→充分性检查→作答）由 DSH 的 agent 模型执行，**不需要**再为查询配置第二套 LLM key。
+### 2. 安装 DSH 插件
 
-### 入库（wiki_ingest）需要什么
+```bash
+dsh plugin --profile web add @detpecca/dsh-llm-wiki
+```
 
-`wiki_ingest` 走 Wiki 自己的编译流程（LLM 把文本改写成结构化页面），需要在 DSH 宿主
-环境设置：
+> 还没发布 npm 时，也可以直接从 GitHub 装（本插件无构建步骤，git 安装即可用）：
+> `dsh plugin --profile web add github:detpecca/dsh-llm-wiki`
+
+### 3. 配置你的知识库路径
+
+安装默认指向 `./wiki`。把实际路径写进 profile 的 `cordis.patch.yml`
+（`$DSH_HOME/profiles/<name>/cordis.patch.yml`），按 id 覆盖并**重述全部键**：
+
+```yaml
+- id: llm-wiki
+  config:
+    wikiPath: D:/path/to/your/wiki   # 你的知识库根目录
+    pythonPath: python               # 你的 python 可执行文件
+    cwd: ''                          # 留空则用 DSH 宿主 cwd（llm_wiki 需可导入）
+```
+
+重启后，`wiki_search` / `wiki_read` 等工具即可被 agent 调用。遍历策略（搜索→阅读→跟
+链接→充分性检查→作答）由 DSH 的 agent 模型执行，**不需要**为查询配置第二套 LLM key。
+
+### 4. （可选）入库需要 LLM key
+
+`wiki_ingest` 走 Wiki 自己的编译流程（LLM 把文本改写成结构化页面），在 DSH 宿主环境设置：
 
 ```bash
 export LLM_WIKI_BASE_URL="https://api.moonshot.cn/v1"   # 任意 OpenAI 兼容端点
@@ -64,17 +66,35 @@ export LLM_WIKI_MODEL="kimi-k2-0711-preview"
 ```
 
 插件会把这些变量显式转发给子进程（DSH 的 env 清理默认会丢弃含凭据名的变量）。
+若知识库还是空的，先用引擎自己编译一份：
+
+```bash
+python -m llm_wiki ingest my_notes.txt --wiki ./wiki
+```
+
+### 卸载
+
+```bash
+dsh plugin --profile web remove @detpecca/dsh-llm-wiki
+```
+
+## 配置项
+
+| 键 | 默认 | 说明 |
+|---|---|---|
+| `wikiPath` | `./wiki` | wiki 根目录（含 `index.md`） |
+| `pythonPath` | `python` | python 可执行文件 |
+| `cwd` | `''`（宿主 cwd） | 子进程工作目录；`llm_wiki` 包需可导入 |
 
 ## 开发与测试
 
 ```bash
-# 单元测试（会调用真实 python + DSH-Wiki CLI；可用环境变量覆盖路径）
-LLM_WIKI_PYTHON="path/to/python.exe" node --test test/
+LLM_WIKI_PYTHON="path/to/python.exe" node --test test/   # 调真实 Python CLI
 ```
 
 ## 开源
 
-- 仓库：`github.com/detpecca/dsh-llm-wiki`（话题标签 `dsh-plugin`）
+- 仓库：`github.com/detpecca/dsh-llm-wiki`（话题 `dsh-plugin`）
 - 许可证：MIT
 
 ## 致谢
