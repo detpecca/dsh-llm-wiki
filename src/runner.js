@@ -6,11 +6,28 @@
 /** Env vars the wiki's own LLM pipeline reads (ingest only). */
 const LLM_WIKI_ENV = ['LLM_WIKI_BASE_URL', 'LLM_WIKI_API_KEY', 'LLM_WIKI_MODEL']
 
-function ingestEnv() {
+/**
+ * Resolve the LLM env for the child process, per key:
+ * explicit `cfg.llmWiki*` value wins, else the ambient `LLM_WIKI_*` variable,
+ * else the key is omitted (the wiki then fails ingest with a clear error).
+ *
+ * @param {Record<string, string>} cfg - resolved plugin config.
+ * @returns {Record<string, string>} env entries to forward to the child.
+ */
+export function buildEnv(cfg) {
   const env = {}
-  for (const key of LLM_WIKI_ENV) {
-    const value = process.env[key]
-    if (value !== undefined) env[key] = value
+  const explicit = {
+    LLM_WIKI_BASE_URL: cfg.llmWikiBaseUrl,
+    LLM_WIKI_API_KEY: cfg.llmWikiApiKey,
+    LLM_WIKI_MODEL: cfg.llmWikiModel,
+  }
+  for (const [key, value] of Object.entries(explicit)) {
+    const v = String(value ?? '').trim()
+    if (v !== '') {
+      env[key] = v
+    } else if (process.env[key] !== undefined) {
+      env[key] = process.env[key]
+    }
   }
   return env
 }
@@ -29,7 +46,7 @@ export async function runCli(ctx, cfg, args, opts = {}) {
   if (subprocess === undefined) {
     throw new Error('llm-wiki: subprocess service is unavailable in this runtime')
   }
-  const env = opts.env ?? ingestEnv()
+  const env = opts.env ?? buildEnv(cfg)
   const handle = subprocess.spawn({
     argv: [cfg.pythonPath, '-m', 'llm_wiki', '--wiki', cfg.wikiPath, ...args],
     cwd: cfg.cwd || process.cwd(),

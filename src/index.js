@@ -25,6 +25,14 @@ const DEFAULTS = {
    * (pip-installed, or the DSH-Wiki checkout root).
    */
   cwd: '',
+  /**
+   * Explicit LLM configuration for wiki_ingest (the compile pipeline).
+   * These override the LLM_WIKI_* environment variables when set, so the
+   * API key can live in cordis.patch.yml instead of the process env.
+   */
+  llmWikiBaseUrl: '',
+  llmWikiApiKey: '',
+  llmWikiModel: '',
 }
 
 /**

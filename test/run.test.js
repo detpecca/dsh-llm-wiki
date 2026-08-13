@@ -18,6 +18,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { buildTools } from '../src/tools.js'
+import { buildEnv } from '../src/runner.js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const PLUGIN_ROOT = path.resolve(here, '..')
@@ -160,4 +161,26 @@ test('wiki_validate reports structural errors on a broken page', async () => {
 test('wiki_errorbook returns entries (empty here)', async () => {
   const res = await tools.wiki_errorbook.execute({}, {})
   assert.deepEqual(res, { entries: [] })
+})
+
+test('buildEnv: explicit config wins over ambient env, empty falls back', () => {
+  const prev = {
+    LLM_WIKI_API_KEY: process.env.LLM_WIKI_API_KEY,
+    LLM_WIKI_BASE_URL: process.env.LLM_WIKI_BASE_URL,
+    LLM_WIKI_MODEL: process.env.LLM_WIKI_MODEL,
+  }
+  process.env.LLM_WIKI_API_KEY = 'from-env'
+  delete process.env.LLM_WIKI_BASE_URL
+  delete process.env.LLM_WIKI_MODEL
+  try {
+    const env = buildEnv({ llmWikiApiKey: 'from-config', llmWikiBaseUrl: '', llmWikiModel: '' })
+    assert.equal(env.LLM_WIKI_API_KEY, 'from-config')
+    assert.equal(env.LLM_WIKI_BASE_URL, undefined) // no config, no ambient -> omitted
+    assert.equal(env.LLM_WIKI_MODEL, undefined)
+    assert.equal(env.LLM_WIKI_API_KEY, 'from-config')
+  } finally {
+    process.env.LLM_WIKI_API_KEY = prev.LLM_WIKI_API_KEY
+    if (prev.LLM_WIKI_BASE_URL !== undefined) process.env.LLM_WIKI_BASE_URL = prev.LLM_WIKI_BASE_URL
+    if (prev.LLM_WIKI_MODEL !== undefined) process.env.LLM_WIKI_MODEL = prev.LLM_WIKI_MODEL
+  }
 })

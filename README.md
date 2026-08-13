@@ -50,22 +50,35 @@ dsh plugin --profile web add @detpecca/dsh-llm-wiki
     wikiPath: D:/path/to/your/wiki   # 你的知识库根目录
     pythonPath: python               # 你的 python 可执行文件
     cwd: ''                          # 留空则用 DSH 宿主 cwd（llm_wiki 需可导入）
+    # —— 以下三项可选：wiki_ingest 的 LLM 配置，显式配置优先于环境变量 ——
+    llmWikiBaseUrl: https://api.moonshot.cn/v1
+    llmWikiApiKey: sk-xxx            # 或改用环境变量 LLM_WIKI_API_KEY
+    llmWikiModel: kimi-k2-0711-preview
 ```
 
 重启后，`wiki_search` / `wiki_read` 等工具即可被 agent 调用。遍历策略（搜索→阅读→跟
 链接→充分性检查→作答）由 DSH 的 agent 模型执行，**不需要**为查询配置第二套 LLM key。
 
-### 4. （可选）入库需要 LLM key
+### Windows 用户：一键安装脚本
 
-`wiki_ingest` 走 Wiki 自己的编译流程（LLM 把文本改写成结构化页面），在 DSH 宿主环境设置：
+本地有 DSH-Wiki 引擎 checkout（或想从 GitHub 装）时，在插件仓库里直接跑：
 
-```bash
-export LLM_WIKI_BASE_URL="https://api.moonshot.cn/v1"   # 任意 OpenAI 兼容端点
-export LLM_WIKI_API_KEY="sk-..."
-export LLM_WIKI_MODEL="kimi-k2-0711-preview"
+```powershell
+.\scripts\install.ps1 -WikiPath D:\你的知识库 -ApiKey sk-xxx
 ```
 
-插件会把这些变量显式转发给子进程（DSH 的 env 清理默认会丢弃含凭据名的变量）。
+脚本自动完成：uv 建 venv → 装引擎 → `dsh plugin add` → 把配置（含 key）写进
+profile 的 `cordis.patch.yml`。详情 `Get-Help .\scripts\install.ps1`。
+
+### （可选）入库需要 LLM key
+
+`wiki_ingest` 走 Wiki 自己的编译流程（LLM 把文本改写成结构化页面）。两种配置方式，
+**显式配置优先**：
+
+1. **写进 `cordis.patch.yml`**（推荐，随 profile 私有保存）：见上方 `llmWiki*` 三项；
+2. **或用环境变量**（`LLM_WIKI_BASE_URL` / `LLM_WIKI_API_KEY` / `LLM_WIKI_MODEL`），
+   插件会把它们转发给子进程。
+
 若知识库还是空的，先用引擎自己编译一份：
 
 ```bash
@@ -85,6 +98,9 @@ dsh plugin --profile web remove @detpecca/dsh-llm-wiki
 | `wikiPath` | `./wiki` | wiki 根目录（含 `index.md`） |
 | `pythonPath` | `python` | python 可执行文件 |
 | `cwd` | `''`（宿主 cwd） | 子进程工作目录；`llm_wiki` 包需可导入 |
+| `llmWikiBaseUrl` | `''`（回落环境变量） | ingest 的 OpenAI 兼容端点 |
+| `llmWikiApiKey` | `''`（回落环境变量） | ingest 的 API key |
+| `llmWikiModel` | `''`（回落环境变量） | ingest 的模型名 |
 
 ## 开发与测试
 

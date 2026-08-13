@@ -1,6 +1,6 @@
 {
   "name": "@detpecca/dsh-llm-wiki",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DeepSeek Harness plugin — manage an LLM-Wiki knowledge base from the agent: wiki_search / wiki_read / wiki_stats / wiki_validate / wiki_errorbook / wiki_ingest",
   "type": "module",
   "main": "src/index.js",
@@ -9,6 +9,7 @@
   },
   "files": [
     "src",
+    "scripts",
     "cordis.patch.yml",
     "README.md",
     "LICENSE"

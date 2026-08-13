@@ -1,14 +1,18 @@
 # Layer contributed when a profile installs @detpecca/dsh-llm-wiki.
 #
 # Values below are neutral defaults. Per-machine settings (wikiPath,
-# pythonPath, cwd) belong in the user's profile cordis.patch.yml, which is
-# applied AFTER this layer — address the row by id and restate every key:
+# pythonPath, cwd, and the optional llmWiki* keys for wiki_ingest) belong in
+# the user's profile cordis.patch.yml, which is applied AFTER this layer —
+# address the row by id and restate every key:
 #
 #   - id: llm-wiki
 #     config:
 #       wikiPath: D:/path/to/your/wiki
 #       pythonPath: python
 #       cwd: D:/path/to/DSH-Wiki
+#       llmWikiApiKey: sk-xxx        # optional; overrides LLM_WIKI_API_KEY env
+#       llmWikiBaseUrl: https://api.moonshot.cn/v1
+#       llmWikiModel: kimi-k2-0711-preview
 #
 # A patch replaces the targeted row's whole config, so restate all keys.
 
