@@ -33,9 +33,10 @@ export function buildTools(cfg, ctx) {
         'Search the LLM-Wiki knowledge base with its structured-signal scorer '
         + '(page name, aliases, tags and summary weighted before page content; '
         + 'CJK-aware tokenization). Returns candidate pages with path, score, '
-        + 'aliases, tags and one-line summary. Use this for the first hop of any '
-        + 'question, then wiki_read the promising pages. For multi-hop questions, '
-        + 'follow the [[wikilinks]] you see in page content.',
+        + 'aliases, tags and one-line summary; score is an integer weight sum '
+        + '(higher = stronger match), not a similarity. Use this for the first '
+        + 'hop of any question, then wiki_read the promising pages. For multi-hop '
+        + 'questions, follow the [[wikilinks]] you see in page content.',
       parameters: {
         query: {
           type: 'string',
@@ -141,11 +142,12 @@ export function buildTools(cfg, ctx) {
     {
       name: 'wiki_validate',
       description:
-        'Run the 5 deterministic structural checks on the LLM-Wiki knowledge '
+        'Run the 4 deterministic structural checks on the LLM-Wiki knowledge '
         + 'base (dangling links, incomplete pages, malformed source refs, index '
-        + 'inconsistency, unseen overwrites). Returns ok:true when clean, plus a '
-        + 'list of {type, page, detail} errors otherwise. Run this after '
-        + 'wiki_ingest to confirm the wiki is healthy.',
+        + 'inconsistency). Returns ok:true when clean, plus a list of '
+        + '{type, page, detail} errors otherwise. Run this after wiki_ingest to '
+        + 'confirm the wiki is healthy. The unseen-overwrite check is '
+        + 'compile-time only: it runs inside wiki_ingest, not in this tool.',
       parameters: {},
       output: {
         schema: {

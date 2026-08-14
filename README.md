@@ -15,7 +15,7 @@ DeepSeek Harness 插件：让 agent 直接管理 **LLM-Wiki** 个人知识库（
 | `wiki_search` | 结构化信号打分检索（CJK 分词） | 否 |
 | `wiki_read` | 批量读页 / 目录索引，跟随 `[[wikilink]]` | 否 |
 | `wiki_stats` | 页面/分类/digest/错误本统计 | 否 |
-| `wiki_validate` | 5 类确定性结构校验 | 否 |
+| `wiki_validate` | 4 类确定性结构校验 | 否 |
 | `wiki_errorbook` | 查看 Error Book（自我纠错记录） | 否 |
 | `wiki_ingest` | 把源文本编译入库（算法 1 全流程） | 是（编译本质要调 LLM） |
 
@@ -105,7 +105,7 @@ dsh plugin --profile web remove @detpecca/dsh-llm-wiki
 ## 开发与测试
 
 ```bash
-LLM_WIKI_PYTHON="path/to/python.exe" node --test test/   # 调真实 Python CLI
+LLM_WIKI_PYTHON="path/to/python.exe" DSH_WIKI_ROOT="path/to/DSH-Wiki" node --test test/run.test.js
 ```
 
 ## 开源
