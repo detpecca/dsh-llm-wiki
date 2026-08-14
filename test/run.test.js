@@ -107,8 +107,8 @@ after(() => {
   rmSync(WIKI_ROOT, { recursive: true, force: true })
 })
 
-test('registers the six expected tools', () => {
-  for (const name of ['wiki_search', 'wiki_read', 'wiki_stats', 'wiki_validate', 'wiki_errorbook', 'wiki_ingest']) {
+test('registers the seven expected tools', () => {
+  for (const name of ['wiki_search', 'wiki_read', 'wiki_stats', 'wiki_validate', 'wiki_fix', 'wiki_errorbook', 'wiki_ingest']) {
     assert.ok(tools[name], `missing tool ${name}`)
     assert.equal(typeof tools[name].execute, 'function')
   }
@@ -156,6 +156,15 @@ test('wiki_validate reports structural errors on a broken page', async () => {
   } finally {
     rmSync(path.join(WIKI_ROOT, 'concepts', 'broken.md'), { force: true })
   }
+})
+
+test('wiki_fix runs the deterministic code auto-fix (finalize off)', async () => {
+  const res = await tools.wiki_fix.execute({}, {})
+  assert.equal(res.finalized, false)
+  assert.deepEqual(res.codeFixes, [])
+  assert.deepEqual(res.repaired, [])
+  assert.equal(res.closedErrorEntries, 0)
+  assert.equal(res.openErrorEntries, 0)
 })
 
 test('wiki_errorbook returns entries (empty here)', async () => {

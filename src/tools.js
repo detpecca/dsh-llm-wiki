@@ -182,6 +182,44 @@ export function buildTools(cfg, ctx) {
       },
     },
     {
+      name: 'wiki_fix',
+      description:
+        'Repair the LLM-Wiki knowledge base. The deterministic pass (always '
+        + 'runs) rebuilds directory/global indices and adds missing '
+        + 'bidirectional [[wikilinks]]. With finalize:true it also runs the LLM '
+        + 'repair rounds — 3 code-fix <-> LLM-fix cycles plus a cross-page '
+        + 'consistency sweep — which is slow and requires the wiki LLM key to be '
+        + 'configured. Returns the code fixes applied, pages the LLM repaired, '
+        + 'and error-book entries closed / remaining open. Run this after '
+        + 'wiki_validate reports errors.',
+      parameters: {
+        finalize: {
+          type: 'boolean',
+          description: 'Also run the LLM repair rounds (needs LLM key). Default false.',
+        },
+      },
+      output: {
+        schema: {
+          type: 'object',
+          additionalProperties: true,
+          properties: {
+            codeFixes: { type: 'array', items: { type: 'string' } },
+            finalized: { type: 'boolean' },
+            repaired: { type: 'array', items: { type: 'string' } },
+            closedErrorEntries: { type: 'number' },
+            openErrorEntries: { type: 'number' },
+          },
+        },
+        render: RENDER,
+      },
+      async execute(args, exec) {
+        const cmdArgs = ['fix', '--json']
+        if (args.finalize) cmdArgs.push('--finalize')
+        const text = await cli(cmdArgs, { signal: exec?.signal })
+        return parseJson(text, 'fix')
+      },
+    },
+    {
       name: 'wiki_errorbook',
       description:
         'Show the LLM-Wiki Error Book: the persistent self-correction store '

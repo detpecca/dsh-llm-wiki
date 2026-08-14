@@ -1,7 +1,7 @@
 {
   "name": "@detpecca/dsh-llm-wiki",
-  "version": "0.2.0",
-  "description": "DeepSeek Harness plugin — manage an LLM-Wiki knowledge base from the agent: wiki_search / wiki_read / wiki_stats / wiki_validate / wiki_errorbook / wiki_ingest",
+  "version": "0.3.0",
+  "description": "DeepSeek Harness plugin — manage an LLM-Wiki knowledge base from the agent: wiki_search / wiki_read / wiki_stats / wiki_validate / wiki_fix / wiki_errorbook / wiki_ingest",
   "type": "module",
   "main": "src/index.js",
   "exports": {

@@ -16,6 +16,7 @@ DeepSeek Harness 插件：让 agent 直接管理 **LLM-Wiki** 个人知识库（
 | `wiki_read` | 批量读页 / 目录索引，跟随 `[[wikilink]]` | 否 |
 | `wiki_stats` | 页面/分类/digest/错误本统计 | 否 |
 | `wiki_validate` | 4 类确定性结构校验 | 否 |
+| `wiki_fix` | 确定性修复（重建索引/补回链；`finalize:true` 加 LLM 修复轮） | 否（finalize 需 key） |
 | `wiki_errorbook` | 查看 Error Book（自我纠错记录） | 否 |
 | `wiki_ingest` | 把源文本编译入库（算法 1 全流程） | 是（编译本质要调 LLM） |
 
