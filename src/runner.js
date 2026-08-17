@@ -67,8 +67,8 @@ export async function runCli(ctx, cfg, args, opts = {}) {
     const detail = (err?.text ?? '').trim()
     let hint = ''
     if (detail.includes("No module named 'llm_wiki'") || detail.includes('No module named llm_wiki')) {
-      hint = ' (the llm_wiki Python package is not importable — install the DSH-Wiki engine: '
-        + 'pip install git+https://github.com/detpecca/DSH-Wiki.git)'
+      hint = ' (the llm_wiki Python package is not importable — install the LLM-Wiki engine: '
+        + 'pip install git+https://github.com/detpecca/LLM-Wiki.git)'
     }
     throw new Error(
       `llm-wiki ${args[0] ?? ''} failed (exit ${outcome.exitCode})${detail ? `: ${detail}` : ''}${hint}`,

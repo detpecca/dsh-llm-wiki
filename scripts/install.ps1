@@ -2,7 +2,7 @@
 .SYNOPSIS
     One-command installer for @detpecca/dsh-llm-wiki (Windows / PowerShell).
 
-    Creates a uv venv, installs the DSH-Wiki Python engine into it, adds this
+    Creates a uv venv, installs the LLM-Wiki Python engine into it, adds this
     plugin to a dsh profile, and writes a configured `llm-wiki` row into the
     profile's cordis.patch.yml (API key included when -ApiKey is given).
 
@@ -15,9 +15,9 @@
     .\scripts\install.ps1 -WikiPath D:\kb -ApiKey sk-xxx -Profile web
 
 .PARAMETER EngineRepo
-    Local DSH-Wiki checkout to install with `uv pip install -e`. Defaults to
-    the sibling directory ..\DSH-Wiki of this repo; when it does not exist the
-    engine is installed from github.com/detpecca/DSH-Wiki.git instead.
+    Local LLM-Wiki checkout to install with `uv pip install -e`. Defaults to
+    the sibling directory ..\LLM-Wiki of this repo; when it does not exist the
+    engine is installed from github.com/detpecca/LLM-Wiki.git instead.
 
 .PARAMETER WikiPath
     Your knowledge base root directory (stored as an absolute path).
@@ -61,7 +61,7 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
 Write-Host "uv: $(uv --version)"
 
 # ---- 2. engine source ----
-if (-not $EngineRepo) { $EngineRepo = Join-Path (Split-Path -Parent $pluginDir) 'DSH-Wiki' }
+if (-not $EngineRepo) { $EngineRepo = Join-Path (Split-Path -Parent $pluginDir) 'LLM-Wiki' }
 $engineFromGit = -not (Test-Path (Join-Path $EngineRepo 'pyproject.toml'))
 if ($engineFromGit) {
     Write-Host "engine: no local checkout at $EngineRepo — installing from GitHub" -ForegroundColor Yellow
@@ -83,7 +83,7 @@ if (-not (Test-Path $venvPython)) {
 
 # ---- 4. install engine into the venv ----
 if ($engineFromGit) {
-    uv pip install --python $venvPython 'git+https://github.com/detpecca/DSH-Wiki.git'
+    uv pip install --python $venvPython 'git+https://github.com/detpecca/LLM-Wiki.git'
 } else {
     uv pip install --python $venvPython -e $EngineRepo
 }
@@ -139,7 +139,7 @@ Write-Host "profile patch written: $patchPath" -ForegroundColor Green
 Write-Host ''
 Write-Host '== done ==' -ForegroundColor Green
 Write-Host "  plugin : $pluginDir (added to profile '$Profile')"
-Write-Host "  engine : $($(if ($engineFromGit) { 'github.com/detpecca/DSH-Wiki.git' } else { $EngineRepo }))"
+Write-Host "  engine : $($(if ($engineFromGit) { 'github.com/detpecca/LLM-Wiki.git' } else { $EngineRepo }))"
 Write-Host "  python : $venvPython"
 Write-Host "  wiki   : $wikiAbs"
 if ($ApiKey) {

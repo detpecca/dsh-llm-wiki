@@ -1,5 +1,5 @@
 /**
- * End-to-end unit tests for the plugin tools against the REAL DSH-Wiki CLI.
+ * End-to-end unit tests for the plugin tools against the REAL LLM-Wiki CLI.
  *
  * The fake ctx substitutes only the subprocess service (driving real `python`
  * through file-descriptor stdio); every tool's execute() runs the actual
@@ -7,7 +7,7 @@
  *
  * Env overrides:
  *   LLM_WIKI_PYTHON  — python executable (default: `python`)
- *   DSH_WIKI_ROOT    — DSH-Wiki checkout root (default: sibling dev repo)
+ *   LLM_WIKI_ROOT    — LLM-Wiki checkout root (default: sibling dev repo)
  */
 
 import { test, before, after } from 'node:test'
@@ -24,9 +24,9 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 const PLUGIN_ROOT = path.resolve(here, '..')
 const WIKI_ROOT = path.join(PLUGIN_ROOT, 'test', '.wiki')
 const PYTHON = process.env.LLM_WIKI_PYTHON ?? 'python'
-const DSH_WIKI_ROOT = process.env.DSH_WIKI_ROOT ?? path.resolve(PLUGIN_ROOT, '..', 'dsh-wiki')
+const LLM_WIKI_ROOT = process.env.LLM_WIKI_ROOT ?? path.resolve(PLUGIN_ROOT, '..', 'LLM-Wiki')
 
-const CFG = { wikiPath: WIKI_ROOT, pythonPath: PYTHON, cwd: DSH_WIKI_ROOT }
+const CFG = { wikiPath: WIKI_ROOT, pythonPath: PYTHON, cwd: LLM_WIKI_ROOT }
 
 /** Minimal subprocess-service stand-in: spawn -> one-shot exec -> collected output. */
 function fakeSubprocess() {
@@ -72,7 +72,7 @@ function fakeSubprocess() {
 function buildSampleWiki() {
   const script = `
 import sys
-sys.path.insert(0, ${JSON.stringify(DSH_WIKI_ROOT)})
+sys.path.insert(0, ${JSON.stringify(LLM_WIKI_ROOT)})
 from llm_wiki.schema import Page, render_page
 from llm_wiki.store import WikiStore
 

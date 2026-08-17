@@ -2,7 +2,7 @@
  * @detpecca/dsh-llm-wiki — DeepSeek Harness plugin for LLM-Wiki knowledge bases.
  *
  * Thin adapter: each tool shells out to the `llm_wiki` Python package (the
- * DSH-Wiki fork, which speaks --json), so the wiki's own retrieval algorithm
+ * LLM-Wiki engine, which speaks --json), so the wiki's own retrieval algorithm
  * and compile pipeline stay the single source of truth.  The plugin itself
  * has zero runtime dependencies.
  */
@@ -22,7 +22,7 @@ const DEFAULTS = {
   /**
    * Working directory for child processes. Relative paths resolve against
    * the DSH host's cwd; the `llm_wiki` package must be importable from here
-   * (pip-installed, or the DSH-Wiki checkout root).
+   * (pip-installed, or the LLM-Wiki checkout root).
    */
   cwd: '',
   /**

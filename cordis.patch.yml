@@ -9,7 +9,7 @@
 #     config:
 #       wikiPath: D:/path/to/your/wiki
 #       pythonPath: python
-#       cwd: D:/path/to/DSH-Wiki
+#       cwd: ''                       # blank uses host cwd; set to an LLM-Wiki checkout only if not pip-installed
 #       llmWikiApiKey: sk-xxx        # optional; overrides LLM_WIKI_API_KEY env
 #       llmWikiBaseUrl: https://api.moonshot.cn/v1
 #       llmWikiModel: kimi-k2-0711-preview

@@ -11,13 +11,13 @@ DSH agent ──调用工具──▶ 本插件（ToolDefinition × 7）
                 python -m llm_wiki --wiki <路径> <子命令> --json
                           │
                           ▼
-              DSH-Wiki 引擎（检索打分 / 算法 1 编译 / 校验修复的唯一权威）
+              LLM-Wiki 引擎（检索打分 / 算法 1 编译 / 校验修复的唯一权威）
                           │
                           ▼
                      你的 Wiki 目录
 ```
 
-- 每个工具通过 DSH 的 `subprocess` 服务调用 [DSH-Wiki](https://github.com/detpecca/DSH-Wiki) 引擎 CLI 的 `--json` 通道；
+- 每个工具通过 DSH 的 `subprocess` 服务调用 [LLM-Wiki](https://github.com/detpecca/LLM-Wiki) 引擎 CLI 的 `--json` 通道；
 - Wiki 自己的**结构化信号检索**（页名/别名/标签/摘要加权打分）和**论文算法 1 编译流程**保持唯一权威；
 - 插件本体**零运行时依赖**（纯 ESM，无构建步骤），Node ≥ 18。
 
@@ -31,10 +31,10 @@ DSH agent ──调用工具──▶ 本插件（ToolDefinition × 7）
 
 **两条命令，不需要克隆任何仓库。**
 
-### 1. 安装 Python 引擎（DSH-Wiki）
+### 1. 安装 Python 引擎（LLM-Wiki）
 
 ```bash
-pip install git+https://github.com/detpecca/DSH-Wiki.git
+pip install git+https://github.com/detpecca/LLM-Wiki.git
 # 唯一运行时依赖是 pyyaml
 ```
 
@@ -87,7 +87,7 @@ python -m llm_wiki --wiki ./wiki ingest my_notes.txt
 ```
 
 （`--wiki` 必须放在子命令之前。更多 CLI 用法见
-[DSH-Wiki README](https://github.com/detpecca/DSH-Wiki#readme)。）
+[LLM-Wiki README](https://github.com/detpecca/LLM-Wiki#readme)。）
 
 ### 卸载
 
@@ -190,19 +190,20 @@ LLM key——遍历推理由 DSH 宿主的 agent 模型自己完成。
 
 ```bash
 # 真实驱动 Python CLI 的端到端测试（10 个用例）
-LLM_WIKI_PYTHON="path/to/python.exe" DSH_WIKI_ROOT="path/to/DSH-Wiki" node --test test/run.test.js
+LLM_WIKI_PYTHON="path/to/python.exe" LLM_WIKI_ROOT="path/to/LLM-Wiki" node --test test/run.test.js
 ```
 
 - `LLM_WIKI_PYTHON`：装了 `pyyaml` 的 python（默认 `python`）
-- `DSH_WIKI_ROOT`：DSH-Wiki 引擎 checkout 根目录（默认 `../dsh-wiki`）
+- `LLM_WIKI_ROOT`：LLM-Wiki 引擎 checkout 根目录（默认 `../LLM-Wiki`）
 
 ## 相关仓库
 
-- [DSH-Wiki](https://github.com/detpecca/DSH-Wiki) — 本插件调用的 Python 引擎
-  （CLI 参考、wiki 目录结构、论文映射见其 README）；
+- [LLM-Wiki](https://github.com/detpecca/LLM-Wiki) — 本插件调用的 Python 引擎，
+  也是论文《Retrieval as Reasoning: Self-Evolving Agent-Native Retrieval via LLM-Wiki》
+  的原始实现（CLI 参考、wiki 目录结构、论文映射见其 README）；
 - [deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) — 宿主；
-- [LLM-Wiki](https://github.com/detpecca/LLM-Wiki) — 论文
-  《Retrieval as Reasoning: Self-Evolving Agent-Native Retrieval via LLM-Wiki》的原始实现。
+- [DSH-Wiki](https://github.com/detpecca/DSH-Wiki) — ⚠️ 已废弃的引擎 fork，功能已并回
+  LLM-Wiki，请勿再使用。
 
 ## 许可证
 
