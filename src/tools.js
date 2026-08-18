@@ -253,11 +253,11 @@ export function buildTools(cfg, ctx) {
         'Compile a source text file into the LLM-Wiki knowledge base — the '
         + 'paper Algorithm 1 pipeline (SelectPages -> compile -> validate -> '
         + 'Error Book -> repair). The file path is resolved against the DSH host '
-        + 'cwd. Requires the wiki\'s own LLM environment variables '
-        + '(LLM_WIKI_BASE_URL, LLM_WIKI_API_KEY, LLM_WIKI_MODEL) to be set in the '
-        + 'host environment — compilation is inherently LLM-driven. Returns a '
-        + 'report of written page paths, skipped passages, new wiki size and '
-        + 'open error-book entries.',
+        + 'cwd. Compilation is inherently LLM-driven: the wiki LLM is taken from '
+        + 'the plugin config keys llmWikiBaseUrl / llmWikiApiKey / llmWikiModel '
+        + 'when set, otherwise from the LLM_WIKI_* environment variables. '
+        + 'Returns a report of written page paths, skipped passages, new wiki '
+        + 'size and open error-book entries.',
       parameters: {
         file: {
           type: 'string',

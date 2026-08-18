@@ -61,7 +61,14 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
 Write-Host "uv: $(uv --version)"
 
 # ---- 2. engine source ----
-if (-not $EngineRepo) { $EngineRepo = Join-Path (Split-Path -Parent $pluginDir) 'LLM-Wiki' }
+if (-not $EngineRepo) {
+    $sibling = Split-Path -Parent $pluginDir
+    foreach ($name in 'LLM-Wiki', 'LLM Wiki') {  # checkout dir name varies by machine
+        $candidate = Join-Path $sibling $name
+        if (Test-Path (Join-Path $candidate 'pyproject.toml')) { $EngineRepo = $candidate; break }
+    }
+    if (-not $EngineRepo) { $EngineRepo = Join-Path $sibling 'LLM-Wiki' }
+}
 $engineFromGit = -not (Test-Path (Join-Path $EngineRepo 'pyproject.toml'))
 if ($engineFromGit) {
     Write-Host "engine: no local checkout at $EngineRepo — installing from GitHub" -ForegroundColor Yellow
@@ -118,10 +125,14 @@ $wikiAbs = if ([System.IO.Path]::IsPathRooted($WikiPath)) { $WikiPath }
            else { (Join-Path (Get-Location) $WikiPath) }
 $cwdVal = if ($engineFromGit) { '' } else { $EngineRepo }
 
-$row = "- id: llm-wiki`n  config:`n    wikiPath: $wikiAbs`n    pythonPath: $venvPython`n    cwd: $cwdVal`n"
-if ($ApiKey)  { $row += "    llmWikiApiKey: $ApiKey`n" }
-if ($BaseUrl) { $row += "    llmWikiBaseUrl: $BaseUrl`n" }
-if ($Model)   { $row += "    llmWikiModel: $Model`n" }
+# Single-quote every value: an unquoted path containing '#', ':' etc. would
+# corrupt the YAML row (single quotes are escaped by doubling).
+function ConvertTo-YamlScalar([string]$s) { "'" + ($s -replace "'", "''") + "'" }
+
+$row = "- id: llm-wiki`n  config:`n    wikiPath: $(ConvertTo-YamlScalar $wikiAbs)`n    pythonPath: $(ConvertTo-YamlScalar $venvPython)`n    cwd: $(ConvertTo-YamlScalar $cwdVal)`n"
+if ($ApiKey)  { $row += "    llmWikiApiKey: $(ConvertTo-YamlScalar $ApiKey)`n" }
+if ($BaseUrl) { $row += "    llmWikiBaseUrl: $(ConvertTo-YamlScalar $BaseUrl)`n" }
+if ($Model)   { $row += "    llmWikiModel: $(ConvertTo-YamlScalar $Model)`n" }
 
 $content = ''
 if (Test-Path $patchPath) { $content = Get-Content $patchPath -Raw }
@@ -132,7 +143,9 @@ if ($trimmed -eq '' -or $trimmed -eq '[]') {
 } else {
     $newContent = $trimmed + "`n" + $row
 }
-Set-Content -Path $patchPath -Value $newContent -Encoding utf8
+# Write without a BOM — Windows PowerShell 5.1's `Set-Content -Encoding utf8`
+# would prepend one, and a BOM can trip strict YAML readers.
+[System.IO.File]::WriteAllText($patchPath, $newContent, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "profile patch written: $patchPath" -ForegroundColor Green
 
 # ---- 7. summary ----
